@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>First Premier League Player Younger Than You</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f4f4f9;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    h4 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: grey;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 2rem;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #result {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>First Premier League Player Younger Than You</h1>
+    <h4>Data from 2011/12 to 2024/25 EPL seasons</h4>
+
+    <label for="dob">Enter your date of birth:</label>
+    <input type="date" id="dob" name="dob" required>
+
+    <label for="team">Select a team:</label>
+    <select id="team" name="team">
+      <option value="all">All Teams</option>
+      <option value="Team A">Team A</option>
+      <option value="Team B">Team B</option>
+      <option value="Team C">Team C</option>
+      <!-- Add more teams as needed -->
+    </select>
+
+    <button onclick="checkYoungest()">Check</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+      async function setMaxDOB() {
+      try {
+        const response = await fetch("earliest_appearances.json"); // Make sure this path is correct relative to your HTML
+        const data = await response.json();
+
+        let latestDOB = null;
+
+        for (const key of Object.keys(data)) {
+          // The key format is: "Player Name|YYYY-MM-DD|Team"
+          const parts = key.split("|");
+          if (parts.length >= 2) {
+            const dobStr = parts[1];
+            const dob = new Date(dobStr);
+            if (!isNaN(dob)) {
+              if (!latestDOB || dob > latestDOB) {
+                latestDOB = dob;
+              }
+            }
+          }
+        }
+
+        if (latestDOB) {
+          const maxDate = latestDOB.toISOString().split("T")[0];
+          document.getElementById("dob").setAttribute("max", maxDate);
+        }
+      } catch (error) {
+        console.error("Could not set max DOB:", error);
+      }
+    }
+
+    function checkYoungest() {
+      const dob = document.getElementById('dob').value;
+      const team = document.getElementById('team').value;
+
+      if (!dob) {
+        alert("Please enter your date of birth.");
+        return;
+      }
+
+      const message = `DOB: ${dob}<br>Selected Team: ${team}<br><br><em>Once the data is added, this will show the youngest player who played before you did!</em>`;
+      document.getElementById('result').innerHTML = message;
+    }
+
+    window.addEventListener('DOMContentLoaded', setMaxDOB);
+  </script>
+
+</body>
+</html>
